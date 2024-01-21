@@ -49,7 +49,10 @@ class SliderList extends React.Component<SliderListProps, SliderListState> {
       this.setState({ value: paraSpacing });
       StorageUtil.setReaderConfig("paraSpacing", paraSpacing);
     } else if (this.props.mode === "brightness") {
-      const brightness = event.target.value;
+      let brightness = event.target.value;
+      if (brightness < 0.3) {
+        brightness = 0.3;
+      }
       this.setState({ value: brightness });
       StorageUtil.setReaderConfig("brightness", brightness);
     } else {
@@ -89,19 +92,22 @@ class SliderList extends React.Component<SliderListProps, SliderListState> {
             }
             type="number"
             step={
-              this.props.title === "Page Width" ||
+              this.props.title === "Page width" ||
               this.props.title === "Brightness"
                 ? "0.1"
                 : "1"
             }
             onChange={(event) => {
               let fieldVal = event.target.value;
+              if (!fieldVal) return;
               this.setState({ inputValue: fieldVal });
             }}
             onFocus={() => {
               this.setState({ isTyping: true });
             }}
             onBlur={(event) => {
+              let fieldVal = event.target.value;
+              if (!fieldVal) return;
               this.onValueChange(event);
               this.setState({ isTyping: false });
               this.handleRest();

@@ -21,6 +21,7 @@ import LoadingDialog from "../../components/dialogs/loadingDialog";
 import TipDialog from "../../components/dialogs/TipDialog";
 import { Toaster } from "react-hot-toast";
 import DetailDialog from "../../components/dialogs/detailDialog";
+import FeedbackDialog from "../../components/dialogs/feedbackDialog";
 
 class Manager extends React.Component<ManagerProps, ManagerState> {
   timer!: NodeJS.Timeout;
@@ -130,14 +131,17 @@ class Manager extends React.Component<ManagerProps, ManagerState> {
               this.props.handleNewDialog(false);
               this.props.handleBackupDialog(false);
               this.props.handleSetting(false);
+              this.props.handleFeedbackDialog(false);
               this.handleDrag(false);
             }}
             style={
               this.props.isSettingOpen ||
+              this.props.isOpenFeedbackDialog ||
               this.props.isBackup ||
               this.props.isShowNew ||
               this.props.isOpenDeleteDialog ||
               this.props.isOpenEditDialog ||
+              this.props.isDetailDialog ||
               this.props.isOpenAddDialog ||
               this.props.isTipDialog ||
               this.props.isShowLoading ||
@@ -159,15 +163,16 @@ class Manager extends React.Component<ManagerProps, ManagerState> {
           </div>
         )}
         <Sidebar />
+        <Toaster />
         <Header {...{ handleDrag: this.handleDrag }} />
         {this.props.isOpenDeleteDialog && <DeleteDialog />}
         {this.props.isOpenEditDialog && <EditDialog />}
         {this.props.isOpenAddDialog && <AddDialog />}
         {this.props.isShowLoading && <LoadingDialog />}
-        <Toaster />
         {this.props.isSortDisplay && <SortDialog />}
         {this.props.isAboutOpen && <AboutDialog />}
         {this.props.isBackup && <BackupDialog />}
+        {this.props.isOpenFeedbackDialog && <FeedbackDialog />}{" "}
         {this.props.isSettingOpen && <SettingDialog />}
         {this.props.isTipDialog && <TipDialog />}
         {this.props.isDetailDialog && <DetailDialog />}

@@ -48,12 +48,14 @@ export type stateType = {
     selectedBooks: string[];
     isTipDialog: boolean;
     isDetailDialog: boolean;
+    isOpenFeedbackDialog: boolean;
     bookSortCode: { sort: number; order: number };
     noteSortCode: { sort: number; order: number };
     tip: string;
   };
   book: {
     isOpenEditDialog: boolean;
+    isDetailDialog: boolean;
     isOpenDeleteDialog: boolean;
     isOpenAddDialog: boolean;
     isOpenActionDialog: boolean;

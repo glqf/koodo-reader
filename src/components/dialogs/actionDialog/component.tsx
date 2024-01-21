@@ -7,6 +7,7 @@ import AddTrash from "../../../utils/readUtils/addTrash";
 import toast from "react-hot-toast";
 import BookUtil from "../../../utils/fileUtils/bookUtil";
 import {
+  exportDictionaryHistory,
   exportHighlights,
   exportNotes,
 } from "../../../utils/syncUtils/exportUtil";
@@ -47,12 +48,17 @@ class ActionDialog extends React.Component<
   handleRestoreBook = () => {
     AddTrash.clear(this.props.currentBook.key);
     this.props.handleActionDialog(false);
-    toast.success(this.props.t("Restore Successfully"));
+    toast.success(this.props.t("Restore successful"));
     this.props.handleFetchBooks();
   };
   handleLoveBook = () => {
     AddFavorite.setFavorite(this.props.currentBook.key);
-    toast.success(this.props.t("Add Successfully"));
+    toast.success(this.props.t("Addition successful"));
+    this.props.handleActionDialog(false);
+  };
+  handleMultiSelect = () => {
+    this.props.handleSelectBook(true);
+    this.props.handleSelectedBooks([this.props.currentBook.key]);
     this.props.handleActionDialog(false);
   };
   handleCancelLoveBook = () => {
@@ -63,7 +69,7 @@ class ActionDialog extends React.Component<
     ) {
       this.props.history.push("/manager/empty");
     }
-    toast.success(this.props.t("Cancel Successfully"));
+    toast.success(this.props.t("Cancellation successful"));
     this.props.handleActionDialog(false);
   };
   render() {
@@ -125,7 +131,7 @@ class ActionDialog extends React.Component<
                 }
               }}
             >
-              <span className="icon-love view-icon"></span>
+              <span className="icon-heart view-icon"></span>
               <p className="action-name">
                 {AddFavorite.getAllFavorite().indexOf(
                   this.props.currentBook.key
@@ -142,9 +148,20 @@ class ActionDialog extends React.Component<
                 this.handleAddShelf();
               }}
             >
-              <span className="icon-shelf view-icon"></span>
+              <span className="icon-bookshelf-line view-icon"></span>
               <p className="action-name">
-                <Trans>Add to Shelf</Trans>
+                <Trans>Add to shelf</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-add"
+              onClick={() => {
+                this.handleMultiSelect();
+              }}
+            >
+              <span className="icon-select view-icon"></span>
+              <p className="action-name">
+                <Trans>Multiple selection</Trans>
               </p>
             </div>
             <div
@@ -153,7 +170,7 @@ class ActionDialog extends React.Component<
                 this.handleDeleteBook();
               }}
             >
-              <span className="icon-trash view-icon"></span>
+              <span className="icon-trash-line view-icon"></span>
               <p className="action-name">
                 <Trans>Delete</Trans>
               </p>
@@ -164,7 +181,7 @@ class ActionDialog extends React.Component<
                 this.handleEditBook();
               }}
             >
-              <span className="icon-edit view-icon"></span>
+              <span className="icon-edit-line view-icon"></span>
               <p className="action-name">
                 <Trans>Edit</Trans>
               </p>
@@ -176,10 +193,10 @@ class ActionDialog extends React.Component<
               }}
             >
               <span
-                className="icon-idea view-icon"
+                className="icon-idea-line view-icon"
                 style={{ fontSize: "17px" }}
               ></span>
-              <p className="action-name">
+              <p className="action-name" style={{ marginLeft: "12px" }}>
                 <Trans>Details</Trans>
               </p>
             </div>
@@ -206,11 +223,13 @@ class ActionDialog extends React.Component<
                   className="icon-more view-icon"
                   style={{
                     display: "inline-block",
-                    marginRight: "15px",
+                    marginRight: "12px",
+                    marginLeft: "3px",
                     transform: "rotate(90deg)",
+                    fontSize: "12px",
                   }}
                 ></span>
-                <Trans>More Actions</Trans>
+                <Trans>More actions</Trans>
               </p>
 
               <span
@@ -235,131 +254,165 @@ class ActionDialog extends React.Component<
             this.state.isShowExport
               ? {
                   position: "fixed",
-                  left: this.props.left + (this.state.isExceed ? -200 : 200),
+                  left: this.props.left + (this.state.isExceed ? -195 : 195),
                   top: this.props.top + 70,
                 }
               : { display: "none" }
           }
         >
-          <div
-            className="action-dialog-edit"
-            onClick={() => {
-              BookUtil.fetchBook(
-                this.props.currentBook.key,
-                true,
-                this.props.currentBook.path
-              ).then((result: any) => {
-                toast.success(this.props.t("Export Successfully"));
-                window.saveAs(
-                  new Blob([result]),
-                  this.props.currentBook.name +
-                    `.${this.props.currentBook.format.toLocaleLowerCase()}`
-                );
-              });
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export Books</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            onClick={() => {
-              if (
-                this.props.notes.filter(
-                  (item) =>
-                    item.bookKey === this.props.currentBook.key &&
-                    item.notes !== ""
-                ).length > 0
-              ) {
-                exportNotes(
-                  this.props.notes.filter(
-                    (item) => item.bookKey === this.props.currentBook.key
-                  ),
-                  [...this.props.books, ...this.props.deletedBooks]
-                );
-                toast.success(this.props.t("Export Successfully"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export Notes</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            onClick={() => {
-              if (
-                this.props.notes.filter(
-                  (item) =>
-                    item.bookKey === this.props.currentBook.key &&
-                    item.notes === ""
-                ).length > 0
-              ) {
-                exportHighlights(
-                  this.props.notes.filter(
-                    (item) => item.bookKey === this.props.currentBook.key
-                  ),
-                  [...this.props.books, ...this.props.deletedBooks]
-                );
-                toast.success(this.props.t("Export Successfully"));
-              } else {
-                toast(this.props.t("Nothing to export"));
-              }
-            }}
-          >
-            <p className="action-name">
-              <Trans>Export Highlights</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            onClick={() => {
-              if (this.props.currentBook.format === "PDF") {
-                toast(this.props.t("Not supported yet"));
-                return;
-              }
-              toast(this.props.t("Precaching"));
-              BookUtil.fetchBook(
-                this.props.currentBook.key,
-                true,
-                this.props.currentBook.path
-              ).then(async (result: any) => {
-                let rendition = BookUtil.getRendtion(
-                  result,
-                  this.props.currentBook.format,
-                  "",
-                  this.props.currentBook.charset
-                );
-                let cache = await rendition.preCache(result);
-                if (cache !== "err") {
-                  BookUtil.addBook(
-                    "cache-" + this.props.currentBook.key,
-                    cache
+          <div className="action-dialog-actions-container">
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={() => {
+                BookUtil.fetchBook(
+                  this.props.currentBook.key,
+                  true,
+                  this.props.currentBook.path
+                ).then((result: any) => {
+                  toast.success(this.props.t("Export successful"));
+                  window.saveAs(
+                    new Blob([result]),
+                    this.props.currentBook.name +
+                      `.${this.props.currentBook.format.toLocaleLowerCase()}`
                   );
-                  toast.success(this.props.t("Precaching Successfully"));
+                });
+              }}
+            >
+              <p className="action-name">
+                <Trans>Export books</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={() => {
+                if (
+                  this.props.notes.filter(
+                    (item) =>
+                      item.bookKey === this.props.currentBook.key &&
+                      item.notes !== ""
+                  ).length > 0
+                ) {
+                  exportNotes(
+                    this.props.notes.filter(
+                      (item) => item.bookKey === this.props.currentBook.key
+                    ),
+                    [...this.props.books, ...this.props.deletedBooks]
+                  );
+                  toast.success(this.props.t("Export successful"));
                 } else {
-                  toast.error(this.props.t("Precaching failed"));
+                  toast(this.props.t("Nothing to export"));
                 }
-              });
-            }}
-          >
-            <p className="action-name">
-              <Trans>Precache</Trans>
-            </p>
-          </div>
-          <div
-            className="action-dialog-edit"
-            onClick={async () => {
-              await BookUtil.deleteBook("cache-" + this.props.currentBook.key);
-              toast.success(this.props.t("Delete Successfully"));
-            }}
-          >
-            <p className="action-name">
-              <Trans>Delete Precache</Trans>
-            </p>
+              }}
+            >
+              <p className="action-name">
+                <Trans>Export notes</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={() => {
+                if (
+                  this.props.notes.filter(
+                    (item) =>
+                      item.bookKey === this.props.currentBook.key &&
+                      item.notes === ""
+                  ).length > 0
+                ) {
+                  exportHighlights(
+                    this.props.notes.filter(
+                      (item) => item.bookKey === this.props.currentBook.key
+                    ),
+                    [...this.props.books, ...this.props.deletedBooks]
+                  );
+                  toast.success(this.props.t("Export successful"));
+                } else {
+                  toast(this.props.t("Nothing to export"));
+                }
+              }}
+            >
+              <p className="action-name">
+                <Trans>Export highlights</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={async () => {
+                let dictHistory =
+                  (await window.localforage.getItem("words")) || [];
+                if (
+                  dictHistory.filter(
+                    (item) => item.bookKey === this.props.currentBook.key
+                  ).length > 0
+                ) {
+                  exportDictionaryHistory(dictHistory, [
+                    ...this.props.books,
+                    ...this.props.deletedBooks,
+                  ]);
+                  toast.success(this.props.t("Export successful"));
+                } else {
+                  toast(this.props.t("Nothing to export"));
+                }
+              }}
+            >
+              <p className="action-name">
+                <Trans>Export dictionary history</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={() => {
+                if (this.props.currentBook.format === "PDF") {
+                  toast(this.props.t("Not supported yet"));
+                  return;
+                }
+                toast(this.props.t("Pre-caching"));
+                BookUtil.fetchBook(
+                  this.props.currentBook.key,
+                  true,
+                  this.props.currentBook.path
+                ).then(async (result: any) => {
+                  let rendition = BookUtil.getRendtion(
+                    result,
+                    this.props.currentBook.format,
+                    "",
+                    this.props.currentBook.charset
+                  );
+                  let cache = await rendition.preCache(result);
+                  if (cache !== "err") {
+                    BookUtil.addBook(
+                      "cache-" + this.props.currentBook.key,
+                      cache
+                    );
+                    toast.success(this.props.t("Pre-caching successful"));
+                  } else {
+                    toast.error(this.props.t("Pre-caching failed"));
+                  }
+                });
+              }}
+            >
+              <p className="action-name">
+                <Trans>Pre-cache</Trans>
+              </p>
+            </div>
+            <div
+              className="action-dialog-edit"
+              style={{ paddingLeft: "0px" }}
+              onClick={async () => {
+                await BookUtil.deleteBook(
+                  "cache-" + this.props.currentBook.key
+                );
+                toast.success(this.props.t("Deletion successful"));
+              }}
+            >
+              <p className="action-name">
+                <Trans>Delete pre-cache</Trans>
+              </p>
+            </div>
           </div>
         </div>
       </>

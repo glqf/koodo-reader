@@ -68,7 +68,7 @@ class DeleteDialog extends React.Component<
     }
 
     this.props.handleDeleteDialog(false);
-    toast.success(this.props.t("Delete Successfully"));
+    toast.success(this.props.t("Deletion successful"));
   };
   deleteBookFromShelf = () => {
     if (this.props.isSelectBook) {
@@ -76,10 +76,10 @@ class DeleteDialog extends React.Component<
         ShelfUtil.clearShelf(this.props.shelfIndex, item);
       });
       this.props.handleSelectedBooks([]);
-      this.props.handleFetchBooks(false);
+      this.props.handleFetchBooks();
       this.props.handleSelectBook(!this.props.isSelectBook);
       this.props.handleDeleteDialog(false);
-      toast.success(this.props.t("Delete Successfully"));
+      toast.success(this.props.t("Deletion successful"));
       return;
     }
     ShelfUtil.clearShelf(this.props.shelfIndex, this.props.currentBook.key);
@@ -93,8 +93,8 @@ class DeleteDialog extends React.Component<
     if (this.props.books.length === 0) {
       this.props.history.push("/manager/empty");
     }
-    this.props.handleFetchBooks(false);
-    this.props.handleFetchBooks(true);
+    this.props.handleFetchBooks();
+    this.props.handleFetchBooks();
     this.props.handleFetchBookmarks();
     this.props.handleFetchNotes();
   };
@@ -112,14 +112,14 @@ class DeleteDialog extends React.Component<
       AddFavorite.clear(item);
     });
     this.props.handleSelectedBooks([]);
-    this.props.handleFetchBooks(false);
+    this.props.handleFetchBooks();
     this.props.handleSelectBook(!this.props.isSelectBook);
   };
   deleteCurrentBook = () => {
     AddTrash.setTrash(this.props.currentBook.key);
     //从喜爱的图书中删除
     AddFavorite.clear(this.props.currentBook.key);
-    this.props.handleFetchBooks(false);
+    this.props.handleFetchBooks();
   };
   deleteBook = (key: string) => {
     return new Promise<void>((resolve, reject) => {
@@ -153,15 +153,15 @@ class DeleteDialog extends React.Component<
       <div className="delete-dialog-container">
         {this.props.mode === "shelf" && !this.state.isDeleteShelfBook ? (
           <div className="delete-dialog-title">
-            <Trans>Delete from Shelf</Trans>
+            <Trans>Delete from shelf</Trans>
           </div>
         ) : this.props.mode === "trash" ? (
           <div className="delete-dialog-title">
-            <Trans>Delete All Books</Trans>
+            <Trans>Delete all books</Trans>
           </div>
         ) : (
           <div className="delete-dialog-title">
-            <Trans>Delete This Book</Trans>
+            <Trans>Delete this book</Trans>
           </div>
         )}
         {this.props.mode === "trash" ? null : (

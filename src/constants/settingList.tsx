@@ -31,7 +31,7 @@ export const settingList = [
   },
   {
     isElectron: true,
-    title: "Auto open book in fullscreen",
+    title: "Auto open book in full screen",
     desc: "Reader window will be maximized to fit the screen when opening a book",
     propName: "isAutoFullscreen",
   },
@@ -50,7 +50,7 @@ export const settingList = [
   {
     isElectron: false,
     title: "Disable trash bin",
-    desc: "When deleting books, they will be deleted permanetly instead of sending to trash bin",
+    desc: "When deleting books, they will be deleted permanently instead of sending to trash bin",
     propName: "isDisableTrashBin",
   },
   {
@@ -78,15 +78,21 @@ export const settingList = [
     propName: "isPreventAdd",
   },
   {
+    isElectron: true,
+    title: "Lemmatize words when looking up in a dictionary",
+    desc: "To reduce the different forms of a word to one single form, for example, reducing builds, building or built to build, reducing cats to cat, reducing fastest to fast",
+    propName: "isLemmatizeWord",
+  },
+  {
     isElectron: false,
     title: "Open books in the main window",
-    desc: "Book won't be opened in a seperate window but directly opened in the main window",
+    desc: "Book won't be opened in a separate window but directly opened in the main window",
     propName: "isOpenInMain",
   },
   {
     isElectron: false,
     title: "Auto precache books after import",
-    desc: "Precache books after import to increase opening speed, Koodo will generate a precache version of the original book and save it into your library",
+    desc: "Pre-cache books after import to increase opening speed, Koodo will generate a precache version of the original book and save it into your library",
     propName: "isPrecacheBook",
   },
   {
@@ -111,15 +117,16 @@ export const settingList = [
   },
 ];
 export const langList = [
-  { label: "简体中文", value: "zh" },
-  { label: "繁體中文", value: "cht" },
+  { label: "简体中文", value: "zhCN" },
+  { label: "繁體中文", value: "zhTW" },
+  { label: "繁體中文-澳門", value: "zhMO" },
   { label: "English", value: "en" },
   { label: "Pусский", value: "ru" },
   { label: "Español", value: "es" },
   { label: "Français", value: "fr" },
   { label: "Português", value: "ptBR" },
   { label: "فارسی", value: "fa" },
-  { label: "日本語", value: "jp" },
+  { label: "日本語", value: "ja" },
   { label: "Türkçe", value: "tr" },
   { label: "عربي", value: "ar" },
   { label: "čeština", value: "cs" },
@@ -150,17 +157,17 @@ export const searchList = [
 ];
 export const skinList = [
   { label: "Follow OS", value: "system" },
-  { label: "Light Mode", value: "light" },
-  { label: "Night Mode", value: "night" },
+  { label: "Light mode", value: "light" },
+  { label: "Night mode", value: "night" },
 ];
 
 export const readerSettingList = [
   {
-    title: "Sliding Animation",
+    title: "Sliding animation",
     propName: "isSliding",
   },
   {
-    title: "Text Indent",
+    title: "Text indentation",
     propName: "isIndent",
   },
   {
@@ -172,11 +179,11 @@ export const readerSettingList = [
     propName: "isItalic",
   },
   {
-    title: "Text underline",
+    title: "Underline",
     propName: "isUnderline",
   },
   {
-    title: "Text shadow",
+    title: "Shadow",
     propName: "isShadow",
   },
   {
@@ -184,7 +191,7 @@ export const readerSettingList = [
     propName: "isInvert",
   },
   {
-    title: "Turn on Bionic Reading",
+    title: "Turn on bionic reading",
     propName: "isBionic",
   },
   {

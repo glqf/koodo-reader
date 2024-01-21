@@ -14,8 +14,10 @@ import { HtmlMouseEvent } from "../../utils/serviceUtils/mouseEvent";
 import ImageViewer from "../../components/imageViewer";
 import { getIframeDoc } from "../../utils/serviceUtils/docUtil";
 import { tsTransform } from "../../utils/serviceUtils/langUtil";
-import CFI from "epub-cfi-resolver";
 import { binicReadingProcess } from "../../utils/serviceUtils/bionicUtil";
+import PopupBox from "../../components/popups/popupBox";
+import { renderHighlighters } from "../../utils/serviceUtils/noteUtil";
+import Note from "../../model/Note";
 
 declare var window: any;
 let lock = false; //prevent from clicking too fasts
@@ -53,12 +55,17 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
     this.props.handleFetchBooks();
   }
   componentDidMount() {
+    window.rangy.init();
     this.handleRenderBook();
 
     this.props.handleRenderBookFunc(this.handleRenderBook);
 
     window.addEventListener("resize", () => {
-      BookUtil.reloadBooks();
+      if (StorageUtil.getReaderConfig("isFullscreen") === "yes") {
+        this.handleRenderBook();
+      } else {
+        BookUtil.reloadBooks();
+      }
     });
   }
   handlePageWidth = () => {
@@ -76,6 +83,36 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       );
     }
   };
+  handleHighlight = (rendition: any) => {
+    let highlighters: any = this.props.notes;
+    if (!highlighters) return;
+    let highlightersByChapter = highlighters.filter((item: Note) => {
+      if (this.props.currentBook.format !== "PDF") {
+        return (
+          (item.chapter ===
+            rendition.getChapterDoc()[this.state.chapterDocIndex].label ||
+            item.chapterIndex === this.state.chapterDocIndex) &&
+          item.bookKey === this.props.currentBook.key
+        );
+      } else {
+        return (
+          item.chapterIndex === this.state.chapterDocIndex &&
+          item.bookKey === this.props.currentBook.key
+        );
+      }
+    });
+
+    renderHighlighters(
+      highlightersByChapter,
+      this.props.currentBook.format,
+      this.handleNoteClick
+    );
+  };
+  handleNoteClick = (event: Event) => {
+    this.props.handleNoteKey((event.target as any).dataset.key);
+    this.props.handleMenuMode("note");
+    this.props.handleOpenMenu(true);
+  };
   handleRenderBook = async () => {
     if (lock) return;
     let { key, path, format, name } = this.props.currentBook;
@@ -88,7 +125,6 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
     StorageUtil.getReaderConfig("readerMode") !== "scroll" &&
       this.handlePageWidth();
 
-    window.rangy.init();
     let isCacheExsit = await BookUtil.isBookExist("cache-" + key, path);
     BookUtil.fetchBook(isCacheExsit ? "cache-" + key : key, true, path).then(
       async (result: any) => {
@@ -131,10 +167,11 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       rendition: rendition,
     });
     this.setState({ rendition });
+
     StyleUtil.addDefaultCss();
     tsTransform();
     binicReadingProcess();
-    rendition.setStyle(StyleUtil.getCustomCss());
+    // rendition.setStyle(StyleUtil.getCustomCss());
     let bookLocation: {
       text: string;
       count: string;
@@ -152,7 +189,6 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
         bookLocation.chapterHref,
         bookLocation.chapterTitle
       );
-      let cfiObj = new CFI(bookLocation.cfi);
       let pageArea = document.getElementById("page-area");
       if (!pageArea) return;
       let iframe = pageArea.getElementsByTagName("iframe")[0];
@@ -161,11 +197,6 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       if (!doc) {
         return;
       }
-      var bookmark = cfiObj.resolveLast(doc, {
-        ignoreIDs: true,
-      });
-
-      await rendition.goToNode(bookmark.node.parentElement);
     } else if (chapterDocs.length > 0) {
       await rendition.goToPosition(
         JSON.stringify({
@@ -194,9 +225,9 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
 
       let chapter =
         bookLocation.chapterTitle ||
-        (this.props.htmlBook
+        (this.props.htmlBook && this.props.htmlBook.flattenChapters[0]
           ? this.props.htmlBook.flattenChapters[0].label
-          : "Unknown Chapter");
+          : "Unknown chapter");
       let chapterDocIndex = 0;
       if (bookLocation.chapterDocIndex) {
         chapterDocIndex = parseInt(bookLocation.chapterDocIndex);
@@ -226,6 +257,7 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       tsTransform();
       binicReadingProcess();
       this.handleBindGesture();
+      this.handleHighlight(rendition);
       lock = true;
       setTimeout(function () {
         lock = false;
@@ -248,7 +280,11 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
       );
     });
     if (targetContent.length > 0) {
-      contentBody.scrollTo(0, targetContent[0].offsetTop);
+      contentBody.scrollTo({
+        left: 0,
+        top: targetContent[0].offsetTop,
+        behavior: "smooth",
+      });
       targetContent[0].setAttribute("style", "color:red; font-weight: bold");
     }
   };
@@ -301,7 +337,7 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
           id="page-area"
           style={
             document.body.clientWidth < 570
-              ? { left: 0, right: 0 }
+              ? { left: 20, right: 20 }
               : this.state.readerMode === "scroll"
               ? {
                   marginLeft: `calc(50vw - ${
@@ -312,15 +348,17 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
                   }px)`,
                   paddingLeft: "20px",
                   paddingRight: "15px",
+                  left: 0,
+                  right: 0,
                 }
               : this.state.readerMode === "single"
               ? {
                   left: `calc(50vw - ${
                     270 * parseFloat(this.state.scale)
-                  }px + 15px)`,
+                  }px + 30px)`,
                   right: `calc(50vw - ${
                     270 * parseFloat(this.state.scale)
-                  }px + 15px)`,
+                  }px + 30px)`,
                 }
               : this.state.readerMode === "double"
               ? {
@@ -336,6 +374,20 @@ class Viewer extends React.Component<ViewerProps, ViewerState> {
         ) : null}
         {this.props.htmlBook ? (
           <PopupMenu
+            {...{
+              rendition: this.props.htmlBook.rendition,
+              rect: this.state.rect,
+              chapterDocIndex: this.state.chapterDocIndex,
+              chapter: this.state.chapter,
+            }}
+          />
+        ) : null}
+        {this.props.isOpenMenu &&
+        this.props.htmlBook &&
+        (this.props.menuMode === "dict" ||
+          this.props.menuMode === "trans" ||
+          this.props.menuMode === "note") ? (
+          <PopupBox
             {...{
               rendition: this.props.htmlBook.rendition,
               rect: this.state.rect,

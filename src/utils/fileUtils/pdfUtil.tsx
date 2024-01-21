@@ -1,9 +1,9 @@
+import { colors, lines } from "../../constants/themeList";
 import { getPDFIframeDoc } from "../serviceUtils/docUtil";
 
 declare var window: any;
 var pdfjsLib = window["pdfjs-dist/build/pdf"];
-let colors = ["#fac106", "#ebe702", "#0be603", "#0493e6"];
-let lines = ["#FF0000", "#000080", "#0000FF", "#2EFF2E"];
+
 export const getHightlightCoords = () => {
   let pageArea = document.getElementById("page-area");
   if (!pageArea) return;
@@ -124,12 +124,13 @@ export const removePDFHighlight = (
   var pageIndex = selected.page;
   if (!iWin.PDFViewerApplication.pdfViewer) return;
   var page = iWin.PDFViewerApplication.pdfViewer.getPageView(pageIndex);
-  if (page && page.div && page.textLayer && page.textLayer.div) {
+  if (page && page.div && page.textLayer && page.textLayer.textLayerDiv) {
     var pageElement =
-      colorCode.indexOf("color") > -1 ? page.textLayer.div : page.div;
-    let noteElements = pageElement.querySelectorAll(".pdf-note");
-    noteElements.forEach((item: Element) => {
-      if (item.getAttribute("key") === noteKey) {
+      colorCode.indexOf("color") > -1 ? page.textLayer.textLayerDiv : page.div;
+
+    let noteElements = pageElement.querySelectorAll(".kookit-note");
+    noteElements.forEach((item: any) => {
+      if (item.dataset.key === noteKey) {
         item.parentNode?.removeChild(item);
       }
     });
@@ -139,16 +140,16 @@ export const showPDFHighlight = (
   selected: any,
   colorCode: string,
   noteKey: string,
-  handlePDFClick: any
+  handleNoteClick: any
 ) => {
   let iWin = getPDFIframeDoc();
   if (!iWin) return;
   var pageIndex = selected.page;
   if (!iWin.PDFViewerApplication.pdfViewer) return;
   var page = iWin.PDFViewerApplication.pdfViewer.getPageView(pageIndex);
-  if (page && page.div && page.textLayer && page.textLayer.div) {
+  if (page && page.div && page.textLayer && page.textLayer.textLayerDiv) {
     var pageElement =
-      colorCode.indexOf("color") > -1 ? page.textLayer.div : page.div;
+      colorCode.indexOf("color") > -1 ? page.textLayer.textLayerDiv : page.div;
 
     var viewport = page.viewport;
     selected.coords.forEach((rect) => {
@@ -175,10 +176,17 @@ export const showPDFHighlight = (
           Math.abs(bounds[1] - bounds[3]) +
           "px; z-index:0;"
       );
-      el?.setAttribute("key", noteKey);
-      el?.setAttribute("class", "pdf-note");
+      el?.setAttribute("data-key", noteKey);
+      el?.setAttribute("class", "kookit-note");
       el?.addEventListener("click", (event: any) => {
-        handlePDFClick(event);
+        if (event && event.target) {
+          if (
+            (event.target as any).dataset &&
+            (event.target as any).dataset.key
+          ) {
+            handleNoteClick(event);
+          }
+        }
       });
 
       pageElement.appendChild(el);

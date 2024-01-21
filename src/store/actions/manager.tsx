@@ -59,6 +59,9 @@ export function handleBookSort(isBookSort: boolean) {
 export function handleNoteSort(isNoteSort: boolean) {
   return { type: "HANDLE_NOTE_SORT", payload: isNoteSort };
 }
+export function handleFeedbackDialog(mode: boolean) {
+  return { type: "HANDLE_FEEDBACK_DIALOG", payload: mode };
+}
 export function handleBookSortCode(bookSortCode: {
   sort: number;
   order: number;
@@ -73,16 +76,13 @@ export function handleNoteSortCode(noteSortCode: {
   return { type: "HANDLE_NOTE_SORT_CODE", payload: noteSortCode };
 }
 
-export function handleFetchBooks(isTrash = false) {
+export function handleFetchBooks() {
   return (dispatch: Dispatch) => {
     window.localforage.getItem("books", (err, value) => {
       let bookArr: any = value;
       let keyArr = AddTrash.getAllTrash();
-      if (isTrash) {
-        dispatch(handleDeletedBooks(handleKeyFilter(bookArr, keyArr)));
-      } else {
-        dispatch(handleBooks(handleKeyRemove(bookArr, keyArr)));
-      }
+      dispatch(handleDeletedBooks(handleKeyFilter(bookArr, keyArr)));
+      dispatch(handleBooks(handleKeyRemove(bookArr, keyArr)));
     });
   };
 }

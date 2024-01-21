@@ -4,7 +4,6 @@ import { Trans } from "react-i18next";
 import { NavListProps, NavListState } from "./interface";
 import DeleteIcon from "../../../components/deleteIcon";
 import toast from "react-hot-toast";
-import CFI from "epub-cfi-resolver";
 import RecordLocation from "../../../utils/readUtils/recordLocation";
 class NavList extends React.Component<NavListProps, NavListState> {
   constructor(props: NavListProps) {
@@ -28,26 +27,13 @@ class NavList extends React.Component<NavListProps, NavListState> {
         cfi: cfi,
       };
     }
-    //compatile wiht lower version(1.5.1)
+    //compatile with lower version(1.5.1)
     if (bookLocation.cfi) {
       await this.props.htmlBook.rendition.goToChapter(
         bookLocation.chapterDocIndex,
         bookLocation.chapterHref,
         bookLocation.chapterTitle
       );
-      let cfiObj = new CFI(bookLocation.cfi);
-      let pageArea = document.getElementById("page-area");
-      if (!pageArea) return;
-      let iframe = pageArea.getElementsByTagName("iframe")[0];
-      if (!iframe) return;
-      let doc: any = iframe.contentDocument;
-      if (!doc) {
-        return;
-      }
-      var bookmark = cfiObj.resolveLast(doc, {
-        ignoreIDs: true,
-      });
-      await this.props.htmlBook.rendition.goToNode(bookmark.node.parentElement);
     } else {
       await this.props.htmlBook.rendition.goToPosition(
         JSON.stringify({
@@ -134,7 +120,7 @@ class NavList extends React.Component<NavListProps, NavListState> {
               }}
               style={{ cursor: "pointer" }}
             >
-              <Trans>Go To</Trans>
+              <Trans>Go to</Trans>
             </div>
           </li>
         );

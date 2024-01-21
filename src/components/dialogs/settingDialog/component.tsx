@@ -20,6 +20,7 @@ import { themeList } from "../../../constants/themeList";
 import toast from "react-hot-toast";
 import { openExternalUrl } from "../../../utils/serviceUtils/urlUtil";
 import ManagerUtil from "../../../utils/fileUtils/managerUtil";
+declare var window: any;
 class SettingDialog extends React.Component<
   SettingInfoProps,
   SettingInfoState
@@ -35,6 +36,7 @@ class SettingDialog extends React.Component<
       isAutoFullscreen:
         StorageUtil.getReaderConfig("isAutoFullscreen") === "yes",
       isPreventAdd: StorageUtil.getReaderConfig("isPreventAdd") === "yes",
+      isLemmatizeWord: StorageUtil.getReaderConfig("isLemmatizeWord") === "yes",
       isOpenBook: StorageUtil.getReaderConfig("isOpenBook") === "yes",
       isExpandContent: StorageUtil.getReaderConfig("isExpandContent") === "yes",
       isDisablePopup: StorageUtil.getReaderConfig("isDisablePopup") === "yes",
@@ -94,7 +96,7 @@ class SettingDialog extends React.Component<
     ]?.setAttribute("selected", "selected");
   }
   handleRest = (bool: boolean) => {
-    toast.success(this.props.t("Change Successfully"));
+    toast.success(this.props.t("Change successful"));
   };
   changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -163,9 +165,9 @@ class SettingDialog extends React.Component<
 
     let result = await restore(fileTemp, true);
     if (result) {
-      toast.success(this.props.t("Change Successfully"));
+      toast.success(this.props.t("Change successful"));
     } else {
-      toast.error(this.props.t("Change Failed"));
+      toast.error(this.props.t("Change failed"));
     }
   };
   handleChangeLocation = async () => {
@@ -184,9 +186,9 @@ class SettingDialog extends React.Component<
       this.syncFromLocation();
     } else if (result === 2) {
       this.props.handleFetchBooks();
-      toast.success(this.props.t("Change Successfully"));
+      toast.success(this.props.t("Change successful"));
     } else {
-      toast.error(this.props.t("Change Failed"));
+      toast.error(this.props.t("Change failed"));
     }
     localStorage.setItem("storageLocation", path.filePaths[0]);
     this.setState({ storageLocation: path.filePaths[0] });
@@ -235,11 +237,11 @@ class SettingDialog extends React.Component<
           &nbsp;&nbsp;
           <Trans>
             {StorageUtil.getReaderConfig("appInfo") === "new"
-              ? "New Version Available"
+              ? "New version available"
               : StorageUtil.getReaderConfig("appInfo") === "stable"
-              ? "Latest Stable Version"
+              ? "Latest stable version"
               : StorageUtil.getReaderConfig("appInfo") === "dev"
-              ? "Developer Version"
+              ? "Developer version"
               : ""}
           </Trans>
         </p>
@@ -306,7 +308,7 @@ class SettingDialog extends React.Component<
             );
           })}
           <div className="setting-dialog-new-title">
-            <Trans>Theme Color</Trans>
+            <Trans>Theme color</Trans>
             <ul className="theme-setting-container">
               {themeList.map((item, index) => (
                 <li
@@ -345,7 +347,7 @@ class SettingDialog extends React.Component<
           )}
 
           <div className="setting-dialog-new-title">
-            <Trans>System Font</Trans>
+            <Trans>System font</Trans>
             <select
               name=""
               className="lang-setting-dropdown"
